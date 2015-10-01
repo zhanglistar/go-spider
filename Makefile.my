@@ -1,0 +1,47 @@
+# -*- coding: gbk; mode: makefile; indent-tabs-mode: t; -*-
+
+export WORKROOT=$(shell cd ../../../../../ && pwd)
+export GOROOT=$(WORKROOT)/public/go/go13/go
+export GOPATH=$(shell pwd):$(WORKROOT)/public/go-lib:$(WORKROOT)/thirdsrc/go-lib:$(WORKROOT)/op/oped/noah/bfe/bfe-common/golang-lib:
+
+GO=$(GOROOT)/bin/go
+
+SRC:=$(wildcard ./src/deque/*.go ./src/fetcher/*.go ./src/parser/*.go ./saver/*.go)
+EXE:=mini_spider
+
+all: $(EXE)
+
+.PHONY: all clean check
+
+$(EXE): src/mini-spider/mini_spider.go pkg/linux_amd64/fetcher.a pkg/linux_amd64/saver.a \
+pkg/linux_amd64/parser.a pkg/linux_amd64/deque.a
+	$(GO) build -gcflags "-N -l" src/mini-spider/mini_spider.go
+	mkdir -p output/
+	cp $(EXE) output/
+
+pkg/linux_amd64/fetcher.a: $(SRC)
+	$(GO) install fetcher
+	cp -r pkg/ output/
+
+pkg/linux_amd64/saver.a: $(SRC)
+	$(GO) install saver
+	cp -r pkg/ output/
+
+pkg/linux_amd64/parser.a: $(SRC)
+	$(GO) install saver
+	cp -r pkg/ output/
+
+pkg/linux_amd64/deque.a: $(SRC)
+	$(GO) install deque
+	cp -r pkg/ output/
+
+check:
+	@echo "WORKROOT=$$WORKROOT"
+	@echo "GOROOT=$$GOROOT"
+	@echo "GOPATH=$$GOPATH"
+	@echo "SRC=$(SRC)"
+
+clean:
+	rm -rf output/*
+	rm -rf $(EXE) pkg/*
+
